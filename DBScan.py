@@ -27,32 +27,37 @@ class DBScan:
 
     def neighbour_points(self, ponto, epsilon):
         points = []
-        for coord in self.coords:
+        label_index = []
+        for i in range(len(self.coords)):
+            coord = self.coords[i]
             dist = self.distancia_ponto_centroid(coord, ponto)
             if(dist <= epsilon) and (coord not in points):
                 points.append(coord)
+                label_index.append(i)
                 
-        return points
+        return label_index, points
 
-    def make_clusters( self, min_points, eps ):
-        borders = []
-        label_index = []
+    def make_labels(self, spec_coord, epsilon, labels, min_points, cluster_val):
+        label_index, neighbours = self.neighbour_points(spec_coord, epsilon)
+
+        if len(neighbours) < min_points:
+            for i in range(0, len(labels) ): 
+                if i in label_index:
+                     labels[i] = -1
+        else:
+            for i in range(0, len(labels) ): 
+                if i in label_index:
+                     labels[i] = cluster_val
+
+        return labels
+
+    def make_clusters( self, min_pts, eps ):
         labels = [0] * len(self.coords)
         val_c = 1
-        for i in range( len(self.coords) ):
+        for i in range(0, len(self.coords) ):
             coord = self.coords[i]
             if labels[i] == 0:
-                neighbours = self.neighbour_points(coord, eps)
-                if len(neighbours)  < min_points:
-                    for i in range( len(labels) ): 
-                        if i in label_index:
-                             labels[i] = -1
-                else:
-                    borders.append( neighbours )
-                    label_index.append(i)
-                    for i in range( len(labels) ): 
-                        if i in label_index:
-                             labels[i] = val_c 
+                labels = self.make_labels(coord, eps, labels, min_pts, val_c)
                 val_c = val_c + 1
         
         return labels
