@@ -44,7 +44,8 @@ class DBScan:
             for i in range(0, len(labels) ): 
                 if i in label_index:
                      labels[i] = -1
-        else:
+        
+        if len(neighbours) > min_points:
             for i in range(0, len(labels) ): 
                 if i in label_index:
                      labels[i] = cluster_val
